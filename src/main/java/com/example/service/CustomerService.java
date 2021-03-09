@@ -1,37 +1,23 @@
 package com.example.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
+import java.util.List;
 
-@Service
-public class CustomerService {
-    
-    @Autowired
-    private CustomerRepository customerRepository;
-    
-    @Override
-    public List<Customer> getCustomerAll() {
-        return customerRepository.findAll();
-    }
-    
-    @Override
-    public Customer getCustomerById(Integer customerId) {
-        return customerRepository.findById(customerId).orElse(null);
-    }
-    
-    @Override
-    public Customer createCustomer(Customer customer) {
-        Customer createdCustomer = customerRepository.save(customer);
-        return createdCustomer;
-    }
-    
-    @Override
-    public Customer updateCustomer(Customer customer) {
-        Integer customerId = customer.getId();
-        customerRepository.findById(customerId).orElse(null);
-        Customer updatedCustomer = customerRepository.save(customer);
-        return updatedCustomer;
-    }
+import com.example.models.Customer;
+import com.example.models.Transactions;
+
+/**
+ * Service for dealing with Customer entities
+ */
+public interface CustomerService {
+
+    List<Customer> getCustomerAll();
+
+    Customer getCustomerById(Integer customerId);
+
+    Customer createCustomer(Customer customer);
+
+    Customer updateCustomer(Customer customer);
+
+    Customer updateCustomerTransaction(Transactions transaction, Long customerId);
+
 }
