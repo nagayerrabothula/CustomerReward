@@ -1,7 +1,11 @@
 package com.example.models;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,17 +21,16 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-public class Customer extends Rewards{
+public class Customer extends Rewards {
     @Id
     @GeneratedValue
-    private long  customerId;
-    
+    private long customerId;
+
     private String name;
-    
+
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Transactions> transactions;
-    
-   
+
     @JsonInclude
     @Transient
     private Double totalPurchases;
@@ -62,13 +65,24 @@ public class Customer extends Rewards{
         return transactions;
     }
 
+    @JsonGetter("threemonthsTransactions")
+    public Stream<Transactions> getThreemonthsTransactions() {
+        LocalDate currentDate = LocalDate.now();
+        LocalDate threeMonthsAgo = LocalDate.now().minusMonths(-3);
+        DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        Date threeMonthsAgoDate = format.parse(threeMonthsAgo.toString());
+        return transactions.stream()
+                .filter(trans -> trans.getSaveDate().after(threeMonthsAgoDate));
+    }
+
     public void setTransactions(Set<Transactions> transactions) {
         this.transactions = transactions;
     }
+
     @JsonGetter("rewardPoints")
     public Long getRewardPoints() {
         if (transactions == null || transactions.isEmpty()) {
-            return 0l;   
+            return 0l;
         }
         return transactions.stream().map(x -> x.getPoints().intValue()).reduce(0, (a, b) -> a + b).longValue();
     }
@@ -86,5 +100,4 @@ public class Customer extends Rewards{
                 + ", rewardPoints=" + rewardPoints + ", totalPurchases=" + totalPurchases + "]";
     }
 
-    
 }
